@@ -4,7 +4,9 @@ const mysql = require('mysql');
 const auth = require('../middlewares/auth');
 const bcrypt = require('bcrypt');
 const setRounds = 10;
+const jwt = require('jsonwebtoken');
 require('dotenv').config();
+
 const db = mysql.createConnection({
   host: process.env.DB_HOST,
   user: process.env.DB_USER,
@@ -40,7 +42,7 @@ router.post('/signup', async (req, res) => {
     // 비밀번호 암호화(암호화)
     const salt = bcrypt.genSaltSync(setRounds);
     const hashedPassword = bcrypt.hashSync(userPw, salt);
-    console.log(hashedPassword);
+
     // query
     const params = [userEmail, hashedPassword, userNickname];
     const query =
@@ -103,7 +105,6 @@ function checkUserNicknameValidation(userNickname) {
       if (rows.length == 0) {
         return resolve(false);
       }
-
       // 존재하다면, 닉네임 중복으로 인지
       resolve(true);
     });
@@ -121,44 +122,37 @@ function checkMatchingPassword(userPw, userPwCheck) {
 router.post('/auth', async (req, res) => {
   try {
     const { userEmail, userPw } = req.body;
-    const query = 'select * from user where userEmail=?';
-    const params = [userEmail];
-    let checkingUser;
-
-    console.log('보자1');
-    const result = await db.query(query, params, (error, rows, fields) => {
-      if (error) {
-        console.log(`Msg: raise Error in login => ${error}`);
-        return res.status(400).json({
-          success: false,
-        });
-      }
-      checkingUser = rows[0];
-      console.log(checkingUser, '11111');
-    });
-
-    console.log('result:', result);
-    console.log('보자2');
-    console.log(checkingUser, '22222');
-    console.log('checkingUser: ', checkingUser);
-    // 해당  Email pw 일치 여부 확인
-    if (!checkingUser) {
-      console.log('일치한 유저가 없다!');
+    const data = await isMatchEmailToPwd(userEmail, userPw);
+    // 로그인 정보가 일치하지 않을 경우
+    if (!data.success) {
       return res.status(401).json({
         success: false,
-        s,
       });
     }
 
+    // DB에서 nickname, email을 가져온다. 토큰에 넣기 위함.
+    const nickname = data.rows.userNickname;
+    const email = data.rows.userEmail;
+    const id = data.rows.userId;
+    const hashedPw = data.rows.userPw;
+
     // 비밀번호가 일치하지 않는 경우(Unauthorized)
-    if (!bcrypt.compareSync(userPw, checkingUser.userPw)) {
+    if (!bcrypt.compareSync(userPw, hashedPw)) {
       console.log('비밀번호가 일치하지 않는 경우에 걸림');
       return res.status(401).json({
         success: false,
       });
     }
-    console.log('보자3');
-    // email, nickname
+
+    // 토큰 생성
+    const token = createJwtToken(nickname, email);
+    res.status(201).json({
+      success: true,
+      token,
+      userEmail: email,
+      userNickname: nickname,
+      userId: id,
+    });
   } catch (err) {
     console.log('로그인 기능 중 에러가 발생: ', err);
     res.status(500).json({
@@ -166,4 +160,34 @@ router.post('/auth', async (req, res) => {
     });
   }
 });
+
+//JWT 토큰 생성
+function createJwtToken(userNickname, userEmail) {
+  return jwt.sign({ userNickname, userEmail }, process.env.SECRET_KEY, {
+    expiresIn: '1h',
+  });
+}
+
+const isMatchEmailToPwd = (userEmail, userPw) => {
+  return new Promise((resolve, reject) => {
+    const params = [userEmail];
+    const query = 'select * from user where userEmail= ?'; // user_email를 통해서 해당 유저 데이터를 가져온다.
+
+    db.query(query, params, (error, rows, fields) => {
+      if (error) {
+        console.error(`Msg: raise Error in isMatchEmailToPwd => ${error}`);
+        return resolve({ success: false });
+      }
+      // query문의 결과가 1개 이상이면서 비밀번호가 일치할 때,
+      if (rows.length >= 1 && bcrypt.compareSync(userPw, rows[0].userPw)) {
+        return resolve({
+          success: true,
+          rows: rows[0],
+        });
+      }
+      return resolve({ success: false });
+    });
+  });
+};
+
 module.exports = router;
