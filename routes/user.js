@@ -12,7 +12,6 @@ const db = mysql.createConnection({
   database: process.env.DB_DATABASE,
 });
 
-/* GET users listing. */
 router.post('/signup', async (req, res) => {
   try {
     const { userEmail, userNickname, userPw, userPwCheck } = req.body;
@@ -119,14 +118,50 @@ function checkMatchingPassword(userPw, userPwCheck) {
 }
 
 // login
-router.post('/auth', (req, res) => {
-  const { userEmail, userPw } = req.body;
+router.post('/auth', async (req, res) => {
+  try {
+    const { userEmail, userPw } = req.body;
+    const query = 'select * from user where userEmail=?';
+    const params = [userEmail];
+    let checkingUser;
 
-  // 해당  Email pw 일치 여부 확인
-  const checkingUser = 'annonymous';
-  if (!checkingUser) {
-    console.log('일치한 유저가 없다!');
-    return res.status(401).json({
+    console.log('보자1');
+    const result = await db.query(query, params, (error, rows, fields) => {
+      if (error) {
+        console.log(`Msg: raise Error in login => ${error}`);
+        return res.status(400).json({
+          success: false,
+        });
+      }
+      checkingUser = rows[0];
+      console.log(checkingUser, '11111');
+    });
+
+    console.log('result:', result);
+    console.log('보자2');
+    console.log(checkingUser, '22222');
+    console.log('checkingUser: ', checkingUser);
+    // 해당  Email pw 일치 여부 확인
+    if (!checkingUser) {
+      console.log('일치한 유저가 없다!');
+      return res.status(401).json({
+        success: false,
+        s,
+      });
+    }
+
+    // 비밀번호가 일치하지 않는 경우(Unauthorized)
+    if (!bcrypt.compareSync(userPw, checkingUser.userPw)) {
+      console.log('비밀번호가 일치하지 않는 경우에 걸림');
+      return res.status(401).json({
+        success: false,
+      });
+    }
+    console.log('보자3');
+    // email, nickname
+  } catch (err) {
+    console.log('로그인 기능 중 에러가 발생: ', err);
+    res.status(500).json({
       success: false,
     });
   }
