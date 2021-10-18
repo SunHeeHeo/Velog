@@ -1,5 +1,13 @@
 const jwt = require('jsonwebtoken');
+const mysql = require('mysql');
 require('dotenv').config();
+
+const db = mysql.createConnection({
+  host: process.env.DB_HOST,
+  user: process.env.DB_USER,
+  password: process.env.DB_PASSWORD,
+  database: process.env.DB_DATABASE,
+});
 
 const isAuth = async (req, res, next) => {
   const authHeader = req.get('Authorization');
@@ -22,23 +30,45 @@ const isAuth = async (req, res, next) => {
         .json({ success: false, msg: '로그인 기간이 만료되었습니다.' });
     }
 
-    console.log('decode : ', decoded);
-    // 존재하지 않는 회원인 경우
-    // const query = 'select * from user where userEmail= ? and userNickname= ?';
-    // const params = [userEmail, userNickname];
-    /* const user = await User.findOne(
-      { userUid: decoded.userUid },
-      { _id: false, __v: false }
-    ); */
-    if (!user) {
+    const userNickname = decoded.userNickname;
+    const userEmail = decoded.userEmail;
+
+    const data = await getUserInfo(userEmail, userNickname);
+    console.log('data :', data);
+
+    if (!data.success) {
       return res
         .status(401)
         .json({ success: false, msg: '존재하지 않는 회원입니다.' });
     }
-    req.user = user;
+    req.user = data.rows;
     next();
   });
 };
+
+function getUserInfo(userEmail, userNickname) {
+  return new Promise((resolve, reject) => {
+    const query = 'select * from user where userEmail = ? and userNickname = ?';
+    const params = [userEmail, userNickname];
+    db.query(query, params, (error, rows, fields) => {
+      if (error) {
+        console.log(`유저 정보를 가져오는 DB에서 에러 발생: ${error}`);
+        return resolve({
+          success: false,
+        });
+      }
+
+      if (rows.length == 0) {
+        return resolve({ success: false });
+      }
+
+      return resolve({
+        success: true,
+        rows: rows[0],
+      });
+    });
+  });
+}
 
 // 토큰이 있는 여부만 파악하고 user를 받기 위한 미들웨어
 const justCheckAuth = async (req, res, next) => {
