@@ -16,7 +16,7 @@ const swaggerDefinition = {
     version: '1.0.0',
     description: '',
   },
-  host: `localhost:${process.env.PORT}`,
+  host: `localhost:${ process.env.PORT }`,
   basePath: '/',
   securityDefinitions: {
     bearerAuth: {
@@ -31,7 +31,7 @@ const swaggerDefinition = {
 
 const options = {
   swaggerDefinition,
-  apis: ['./swagger/*.js'],
+  apis: [ './swagger/*.js' ],
 };
 
 const swaggerSpec = swaggerJSDoc(options);
