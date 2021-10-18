@@ -23,6 +23,21 @@ const corsOptions = {
 
 app.use(cors(corsOptions));
 
+//DB connect
+const mysql = require('mysql');
+const db = mysql.createConnection({
+  host: process.env.DB_HOST,
+  user: process.env.DB_USER,
+  password: process.env.DB_PASSWORD,
+  database: process.env.DB_DATABASE
+});
+db.connect();
+
+query = 'show tables';
+db.query(query, (err, results) => {
+  console.log(results)
+})
+
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'jade');
