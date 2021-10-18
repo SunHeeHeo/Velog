@@ -1,7 +1,7 @@
 create table user(
 	userId int(20) not null auto_increment,
 	userEmail varchar(50) not null unique,
-	userPw varchar(40) not null,
+	userPw varchar(255) not null,
     userNickname varchar(40) not null unique,
 	primary key(userId),
 	index(userNickname)
@@ -26,7 +26,7 @@ create table comment(
     postId int(20),
     primary key(commentId),
     foreign key(postId)REFERENCES post(postId) ON DELETE CASCADE,
-    foreign key(userNickname)REFERENCES user(userNickname) ON UPDATE CASCADE,
+    foreign key(userNickname)REFERENCES user(userNickname) ON UPDATE CASCADE
 );
 create table profile(
     profileId int(20) not null auto_increment,
