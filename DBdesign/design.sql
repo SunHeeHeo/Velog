@@ -35,4 +35,3 @@ create table profile(
     userId int(20),
     primary key(profileId),
     foreign key(userId)REFERENCES user(userId) ON UPDATE CASCADE ON DELETE CASCADE
-)
