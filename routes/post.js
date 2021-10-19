@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const mysql = require('mysql');
-const auth = require('../middlewares/auth')
+const auth = require('../middlewares/auth');
 require('date-utils');
 const db = mysql.createConnection({
   host: process.env.DB_HOST,
@@ -12,17 +12,16 @@ const db = mysql.createConnection({
 console.log('111');
 
 //게시글 작성하기
-router.post('/', (req, res) => {
+router.post('/', auth.isAuth, async (req, res) => {
   console.log('작성하기 접속이 되니');
   const { postTitle, postIntro, postContent, postImage } = req.body;
-  console.log(req.body);
-  // const userNickname = 'yunjae'; 닉네임 미들웨어에서 꺼내오기
+  const userNickname = req.user.userNickname;
   const newDate = new Date();
   const postTime = newDate.toFormat('YYYY-MM-DD HH24:MI:SS');
-  const params = [ postTitle, postIntro, postContent, postImage, postTime ]; //코드가 길어지는 걸 간결하게 하기 위해서!
+  const params = [ postTitle, userNickname, postIntro, postContent, postImage, postTime ]; //코드가 길어지는 걸 간결하게 하기 위해서!
   const query =
-    'INSERT INTO post(postTitle, postIntro, postContent, postImage, postTime) VALUES(?,?,?,?,?)';
-  db.query(query, params, (error, rows, fields) => {
+    'INSERT INTO post(postTitle, userNickname, postIntro, postContent, postImage, postTime) VALUES(?,?,?,?,?,?)';
+  await db.query(query, params, (error, rows, fields) => {
     if (error) {
       console.log(`Msg: raise Error in createPost => ${ error }`);
       return res.status(400).json({
@@ -56,9 +55,7 @@ router.get('/:postId', async (req, res) => {
     `SELECT * FROM post WHERE postId = ${postId}`;
   try {
     await db.query(query, (error, rows) => {
-      console.log(rows);
       if (error) {
-        console.log(error);
         return false;
       } else {
         res.status(200).json({
@@ -68,16 +65,15 @@ router.get('/:postId', async (req, res) => {
       }
     });
   } catch (err) {
-    res.status(400).json({
+    res.status(500).json({
       ssuccess: false
     });
-    console.log(err);
   }
 });
 
 //게시글 수정
-router.patch('/:postId', async (req, res) => {
-  console.log('게시글 수정 라우터 부르기 !!');
+router.patch('/:postId', auth.isAuth, async (req, res) => {
+  const userNickname = req.user.userNickname;
   const { postId } = req.params;
   const { postTitle, postIntro, postContent, postImage } = req.body;
   const escapeQuery = {
@@ -87,14 +83,15 @@ router.patch('/:postId', async (req, res) => {
     postImage: postImage,
   };
   const query =
-    `UPDATE post SET ? WHERE postId = ${postId}`;
+    `UPDATE post SET ? WHERE postId = ${postId} and userNickname = ${userNickname}`;
   await db.query(query, escapeQuery, (error, rows, fields) => {
     if (error) {
-      res.status(400).json({ error });
+      res.status(400).json({
+        success: false,
+        error
+      });
       return false;
     } else {
-      console.log('정상작동 됐지만 에러는?', error);
-      console.log('필드는?', fields);
       res.status(200).json({
         success: true
       });
@@ -102,10 +99,29 @@ router.patch('/:postId', async (req, res) => {
   });
 });
 
+// 게시글 삭제
 router.delete('/:postId', auth.isAuth, async (req, res) => {
   console.log('게시글 삭제 라우터 부르기 !!');
-
-})
+  const { postId } = req.params;
+  const userNickname = req.user.userNickname;
+  const query =
+    `DELETE from post where postId = ${postId} and userNickname = "${userNickname}"`;
+  try {
+    await db.query(query, (error, rows, fields) => {
+      if (error) {
+        console.log('쿼리문 에러 ', error);
+        return res.status(400).json({
+          success: false
+        });
+      }
+      res.status(200).json({
+        success: true
+      });
+    });
+  } catch (err) {
+    res.status(500).json({ err: err });
+  }
+});
 
 
 module.exports = router;

@@ -29,7 +29,6 @@ const isAuth = async (req, res, next) => {
         .status(401)
         .json({ success: false, msg: '로그인 기간이 만료되었습니다.' });
     }
-
     const userNickname = decoded.userNickname;
     const userEmail = decoded.userEmail;
 

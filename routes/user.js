@@ -8,6 +8,7 @@ const jwt = require('jsonwebtoken');
 require('dotenv').config();
 const { db } = require('../example');
 
+// 회원가입
 router.post('/signup', async (req, res) => {
   try {
     const { userEmail, userNickname, userPw, userPwCheck } = req.body;
