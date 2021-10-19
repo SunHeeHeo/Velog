@@ -117,7 +117,9 @@ function checkMatchingPassword(userPw, userPwCheck) {
 router.post('/auth', async (req, res) => {
   try {
     const { userEmail, userPw } = req.body;
+
     const data = await isMatchEmailToPwd(userEmail, userPw);
+    console.log(data);
     // 로그인 정보가 일치하지 않을 경우
     if (!data.success) {
       return res.status(401).json({
