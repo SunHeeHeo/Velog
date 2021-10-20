@@ -1,8 +1,10 @@
 const express = require('express');
-const router = express.Router();
+const router = express.Router({mergeParams: true});
 const mysql = require('mysql');
 const auth = require('../middlewares/auth');
-require('date-utils');
+require('date-utils'); //*
+const comment = require('./comment')
+router.use('/:postId/comments', comment);
 const db = mysql.createConnection({
   host: process.env.DB_HOST,
   user: process.env.DB_USER,
