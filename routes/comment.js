@@ -1,5 +1,5 @@
 const express = require('express');
-const router = express.Router();
+const router = express.Router({mergeParams: true});
 const auth = require('../middlewares/auth');
 const mysql = require('mysql');
 const db = mysql.createConnection({
@@ -8,6 +8,7 @@ const db = mysql.createConnection({
   password: process.env.DB_PASSWORD,
   database: process.env.DB_DATABASE,
 });
+
 
 /* GET users listing. */
 router.get('/', function (req, res, next) {
@@ -54,12 +55,14 @@ router.post('/', auth.isAuth, async (req, res) => {
 
 //댓글 수정
 router.patch('/:commentId', auth.isAuth, async (req, res) => {
-  const {postId} = req.params;
+  const {commentId} = req.params;
+  console.log(commentId)
   const { commentContent } = req.body;
+  const userNickname = req.user.userNickname;
   const escapeQuery = {
     commentContent: commentContent,
   };
-  const query = `UPDATE comment SET ? WHERE postId = ${postId} and userNickname = '${userNickname}'`;
+  const query = `UPDATE comment SET ? WHERE commentId = '${commentId}' and userNickname = '${userNickname}'`;
   await db.query(query, escapeQuery, (error, rows, fields) => {
     if (error) {
       res.status(400).json({
@@ -77,9 +80,9 @@ router.patch('/:commentId', auth.isAuth, async (req, res) => {
 
 //댓글삭제
 router.delete('/:commentId', auth.isAuth, async (req, res) => {
-  const { postId } = req.params;
+  const { commentId } = req.params;
   const userNickname = req.user.userNickname;
-  const query = `DELETE from post where postId = ${postId} and userNickname = "${userNickname}"`;
+  const query = `DELETE from comment where commentId = '${commentId}'  and userNickname = "${userNickname}"`;
   try {
     await db.query(query, (error, rows, fields) => {
       if (error) {
