@@ -17,11 +17,9 @@ router.get('/', function (req, res, next) {
 
 //comments creating
 router.post('/', auth.isAuth, async (req, res) => {
-  console.log("댓글 라우터 접속 완료")
   try {
     const commentContent = req.body.commentContent;
     const {postId} = req.params
-    console.log(postId)
     const userNickname = req.user.userNickname;
     const newDate = new Date();
     const commentTime = newDate.toFormat('YYYY-MM-DD HH24:MI:SS');
@@ -56,7 +54,6 @@ router.post('/', auth.isAuth, async (req, res) => {
 //댓글 수정
 router.patch('/:commentId', auth.isAuth, async (req, res) => {
   const {commentId} = req.params;
-  console.log(commentId)
   const { commentContent } = req.body;
   const userNickname = req.user.userNickname;
   const escapeQuery = {
