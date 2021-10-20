@@ -15,7 +15,7 @@ create table post(
 	postImage text,
 	postTime varchar(50) not null,
     primary key(postId),
-    foreign key(userNickname)REFERENCES user(userNickname) ON UPDATE CASCADE, --onemoretime
+    foreign key(userNickname)REFERENCES user(userNickname) ON UPDATE CASCADE, 
     index(postId)
 );
 create table comment(
@@ -34,4 +34,5 @@ create table profile(
     userImage text,
     userId int(20),
     primary key(profileId),
-    foreign key(userId)REFERENCES user(userId) ON UPDATE CASCADE ON DELETE CASCADE
+    foreign key(userId)REFERENCES user(userId) ON UPDATE CASCADE, 
+    ON DELETE CASCADE;
