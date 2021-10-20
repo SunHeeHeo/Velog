@@ -15,7 +15,7 @@ router.get('/', function (req, res, next) {
   res.send('respond with a resource');
 });
 
-//comments creating
+//댓글 작성
 router.post('/', auth.isAuth, async (req, res) => {
   try {
     const commentContent = req.body.commentContent;

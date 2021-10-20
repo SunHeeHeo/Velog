@@ -79,6 +79,7 @@ router.get('/:postId', async (req, res) => {
           success: true,
           post: rows[0],
         });
+        console.log(rows)
       }
     });
   } catch (err) {

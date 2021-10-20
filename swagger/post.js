@@ -52,7 +52,7 @@
  *     tags:
  *      - Post
  *     name: 게시글 상세 페이지 조회
- *     summary: 게시글 상세 페이지 조회(댓글 기능 아직 구현 못했어요!)
+ *     summary: 게시글 상세 페이지 조회
  *     parameters:
  *       - name: postId
  *         in: path
@@ -72,7 +72,7 @@
  *     tags:
  *      - Post
  *     name: 게시글 수정
- *     summary: 게시글 수정(사용 가능)
+ *     summary: 게시글 수정
  *     parameters:
  *       - name: postId
  *         in: path
