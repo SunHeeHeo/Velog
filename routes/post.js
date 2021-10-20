@@ -138,3 +138,4 @@ router.delete('/:postId', auth.isAuth, async (req, res) => {
 });
 
 module.exports = router;
+
