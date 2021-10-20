@@ -1,9 +1,9 @@
 const express = require('express');
-const router = express.Router({mergeParams: true});
+const router = express.Router({ mergeParams: true });
 const mysql = require('mysql');
 const auth = require('../middlewares/auth');
 require('date-utils'); //*
-const comment = require('./comment')
+const comment = require('./comment');
 router.use('/:postId/comments', comment);
 const db = mysql.createConnection({
   host: process.env.DB_HOST,
@@ -65,11 +65,16 @@ router.get('/', function (req, res, next) {
   }
 });
 
-//게시글 상세페이지 조회
+//게시글 상세페이지 조회 (DB 한 번 접속후 데이터 가공)
 router.get('/:postId', async (req, res) => {
-  console.log('상세페이지 조회 라우터 부르기 !');
   const { postId } = req.params;
-  const query = `SELECT * FROM post WHERE postId = ${postId}`;
+
+  const query = `
+  select 
+  post.postId, comment.commentId, postTitle, postContent, post.userNickname as postUserNickname, postTime, commentContent, 
+  comment.userNickname as commentUserNickname, commentTime from post 
+  left join comment on post.postId = comment.postId WHERE post.postId=${postId}`;
+
   try {
     await db.query(query, (error, rows) => {
       if (error) {
@@ -77,16 +82,55 @@ router.get('/:postId', async (req, res) => {
       } else {
         res.status(200).json({
           success: true,
-          post: rows[0],
+          post: getDetailPostData(rows),
+          comments: getDetailCommentsData(rows),
         });
       }
     });
   } catch (err) {
+    console.log('상세 페이지 조회 기능 중 발생한 에러', err);
     res.status(500).json({
-      ssuccess: false,
+      success: false,
     });
   }
 });
+
+// 상세 페이지 조회( Data Base 2번 접속할 경우)
+/* router.get('/:postId', async (req, res) => {
+  try {
+    console.log('상세페이지 조회 라우터 부르기 !');
+    const { postId } = req.params;
+    const postQuery = `select * from post where postId=${postId}`;
+    await db.query(postQuery, async (error, post) => {
+      if (error) {
+        return false;
+      }
+      const commentQuery = `select * from comment where postId=${postId}`;
+      try {
+        await db.query(commentQuery, (error, comments) => {
+          if (error) {
+            return false;
+          }
+          res.status(200).json({
+            success: true,
+            post: post,
+            comments: comments,
+          });
+        });
+      } catch (err) {
+        console.log(err);
+        res.status(500).json({
+          success: false,
+        });
+      }
+    });
+  } catch (err) {
+    console.log(err);
+    res.status(500).json({
+      success: false,
+    });
+  }
+}); */
 
 //게시글 수정
 router.patch('/:postId', auth.isAuth, async (req, res) => {
@@ -136,6 +180,29 @@ router.delete('/:postId', auth.isAuth, async (req, res) => {
     res.status(500).json({ err: err });
   }
 });
+
+// 상세 페이지 포스트 내용 가져오기
+function getDetailPostData(rows) {
+  return {
+    postTitle: rows[0].postTitle,
+    postContent: rows[0].postContent,
+    postTime: rows[0].postTime,
+  };
+}
+
+// 상세페이지 댓글 내용 가져오기
+function getDetailCommentsData(rows) {
+  let comments = [];
+  for (let i = 1; i < rows.length; i++) {
+    let tmp = {
+      userNickname: rows[i].commentUserNickname,
+      commentContent: rows[i].commentContent,
+      commentDate: rows[i].commentTime,
+    };
+    comments.push(tmp);
+  }
+  return comments;
+}
 
 module.exports = router;
 
