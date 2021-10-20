@@ -1,36 +1,19 @@
 const express = require('express');
-const router = express.Router({mergeParams: true});
+const router = express.Router({ mergeParams: true });
 const auth = require('../middlewares/auth');
-const mysql = require('mysql');
-const db = mysql.createConnection({
-  host: process.env.DB_HOST,
-  user: process.env.DB_USER,
-  password: process.env.DB_PASSWORD,
-  database: process.env.DB_DATABASE,
-});
-
-
-/* GET users listing. */
-router.get('/', function (req, res, next) {
-  res.send('respond with a resource');
-});
+const db = require('../example');
 
 //comments creating
 router.post('/', auth.isAuth, async (req, res) => {
   try {
     const commentContent = req.body.commentContent;
-    const {postId} = req.params
+    const { postId } = req.params;
     const userNickname = req.user.userNickname;
     const newDate = new Date();
     const commentTime = newDate.toFormat('YYYY-MM-DD HH24:MI:SS');
-    const params = [
-      commentTime,
-      commentContent,
-      userNickname,
-      postId
-    ]; 
+    const params = [commentTime, commentContent, userNickname, postId];
     const query =
-      'INSERT INTO comment(commentTime,commentContent,userNickname,postId) VALUES(?,?,?,?)';
+      'INSERT INTO comment(commentTime, commentContent, userNickname, postId) VALUES(?,?,?,?)';
     await db.query(query, params, (error, rows, fields) => {
       if (error) {
         console.log(`Msg: raise Error in createPost => ${error}`);
@@ -53,7 +36,7 @@ router.post('/', auth.isAuth, async (req, res) => {
 
 //댓글 수정
 router.patch('/:commentId', auth.isAuth, async (req, res) => {
-  const {commentId} = req.params;
+  const { commentId } = req.params;
   const { commentContent } = req.body;
   const userNickname = req.user.userNickname;
   const escapeQuery = {
@@ -96,6 +79,5 @@ router.delete('/:commentId', auth.isAuth, async (req, res) => {
     res.status(500).json({ err: err });
   }
 });
-
 
 module.exports = router;

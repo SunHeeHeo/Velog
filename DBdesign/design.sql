@@ -4,8 +4,8 @@ create table user(
 	userPw varchar(255) not null,
     userNickname varchar(40) not null unique,
 	primary key(userId),
-	index(userNickname) //무슨 의미?
-);
+	index(userNickname)
+)
 create table post(
 	postId int(20) not null auto_increment, 
 	postTitle varchar(50) not null,
@@ -15,7 +15,7 @@ create table post(
 	postImage text,
 	postTime varchar(50) not null,
     primary key(postId),
-    foreign key(userNickname)REFERENCES user(userNickname) ON UPDATE CASCADE, 
+    foreign key(userNickname)REFERENCES user(userNickname) ON UPDATE CASCADE,
     index(postId)
 );
 create table comment(
@@ -34,5 +34,5 @@ create table profile(
     userImage text,
     userId int(20),
     primary key(profileId),
-    foreign key(userId)REFERENCES user(userId) ON UPDATE CASCADE, 
-    ON DELETE CASCADE;
+    foreign key(userId)REFERENCES user(userId) ON UPDATE CASCADE ON DELETE CASCADE
+)

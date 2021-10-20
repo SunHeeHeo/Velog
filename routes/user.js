@@ -38,17 +38,32 @@ router.post('/signup', async (req, res) => {
     const salt = bcrypt.genSaltSync(setRounds);
     const hashedPassword = bcrypt.hashSync(userPw, salt);
 
-    // query
-    const params = [userEmail, hashedPassword, userNickname];
-    const query =
+    const userParams = [userEmail, hashedPassword, userNickname];
+    const userQuery =
       'INSERT INTO user(userEmail, userPw, userNickname) VALUES(?,?,?)';
-    await db.query(query, params, (error, rows, fields) => {
+
+    // user 생성
+    await db.query(userQuery, userParams, async (error, rows, fields) => {
       if (error) {
         console.log(`Msg: raise Error in createUser => ${error}`);
         return res.status(400).json({
           success: false,
         });
       }
+
+      const userId = rows.insertId;
+      const profileParams = [userId];
+      const profileQuery = 'INSERT INTO profile(userId) VALUES(?)';
+
+      // profile 생성
+      await db.query(profileQuery, profileParams, (error, rows, fields) => {
+        if (error) {
+          console.log(`Msg: raise Error in createProfile => ${error}`);
+          return res.status(400).json({
+            success: false,
+          });
+        }
+      });
 
       console.log(`${userEmail}로 회원 등록이 완료되었습니다.`);
       return res.status(201).json({
