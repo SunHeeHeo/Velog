@@ -39,18 +39,18 @@ router.post('/signup', async (req, res) => {
     const hashedPassword = bcrypt.hashSync(userPw, salt);
 
     // query
-    const params = [userEmail, hashedPassword, userNickname];
+    const params = [ userEmail, hashedPassword, userNickname ];
     const query =
       'INSERT INTO user(userEmail, userPw, userNickname) VALUES(?,?,?)';
     await db.query(query, params, (error, rows, fields) => {
       if (error) {
-        console.log(`Msg: raise Error in createUser => ${error}`);
+        console.log(`Msg: raise Error in createUser => ${ error }`);
         return res.status(400).json({
           success: false,
         });
       }
 
-      console.log(`${userEmail}로 회원 등록이 완료되었습니다.`);
+      console.log(`${ userEmail }로 회원 등록이 완료되었습니다.`);
       return res.status(201).json({
         success: true,
       });
@@ -67,10 +67,10 @@ router.post('/signup', async (req, res) => {
 function checkUserEmailValidation(userEmail) {
   return new Promise((resolve, reject) => {
     const query = 'select * from user where userEmail = ?';
-    const params = [userEmail];
+    const params = [ userEmail ];
     db.query(query, params, (error, rows, fields) => {
       if (error) {
-        console.log(`Msg: raise Error in checkValidationEmail => ${error}`);
+        console.log(`Msg: raise Error in checkValidationEmail => ${ error }`);
         return resolve(true);
       }
 
@@ -89,10 +89,10 @@ function checkUserEmailValidation(userEmail) {
 function checkUserNicknameValidation(userNickname) {
   return new Promise((resolve, reject) => {
     const query = 'select * from user where userNickname = ?';
-    const params = [userNickname];
+    const params = [ userNickname ];
     db.query(query, params, (error, rows, fields) => {
       if (error) {
-        console.log(`Msg: raise Error in checkValidationNickname => ${error}`);
+        console.log(`Msg: raise Error in checkValidationNickname => ${ error }`);
         return resolve(true);
       }
 
@@ -105,6 +105,7 @@ function checkUserNicknameValidation(userNickname) {
     });
   });
 }
+
 // 비밀번호 일치 여부 알려주는 함수
 function checkMatchingPassword(userPw, userPwCheck) {
   if (userPw === userPwCheck) {
@@ -167,12 +168,12 @@ function createJwtToken(userNickname, userEmail) {
 
 const isMatchEmailToPwd = (userEmail, userPw) => {
   return new Promise((resolve, reject) => {
-    const params = [userEmail];
-    const query = 'select * from user where userEmail= ?'; // user_email를 통해서 해당 유저 데이터를 가져온다.
+    const params = [ userEmail ];
+    const query = 'select * from user where userEmail= ?'; // userEmail를 통해서 해당 유저 데이터를 가져온다.
 
     db.query(query, params, (error, rows, fields) => {
       if (error) {
-        console.error(`Msg: raise Error in isMatchEmailToPwd => ${error}`);
+        console.error(`Msg: raise Error in isMatchEmailToPwd => ${ error }`);
         return resolve({ success: false });
       }
       // query문의 결과가 1개 이상이면서 비밀번호가 일치할 때,
@@ -186,5 +187,24 @@ const isMatchEmailToPwd = (userEmail, userPw) => {
     });
   });
 };
+
+// 유저페이지 불러오기 수정해야함!!!!!!!!!!!!!!!!!!!!!!!!!!!
+router.get('/:userNickname', async (req, res) => {
+  try {
+    let { userNickname } = req.params;
+    userNickname = userNickname.split('@')[1]
+    const query = `select post.*, user.userId from post inner join user On post.postId =  where userNickname = ${userNickname}`;
+    await db.query(query, (error, rows) => {
+      res.status(200).json({
+        success: true,
+        posts: rows
+      });
+    });
+  } catch (err) {
+    res.status(400).json({
+      success: false,
+    });
+  }
+});
 
 module.exports = router;
