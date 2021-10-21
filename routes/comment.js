@@ -1,9 +1,10 @@
 const express = require('express');
 const router = express.Router({ mergeParams: true });
 const auth = require('../middlewares/auth');
-const db = require('../example');
+const mysql = require('mysql');
+const { db } = require('../example');
 
-//comments creating
+//댓글 작성
 router.post('/', auth.isAuth, async (req, res) => {
   try {
     const commentContent = req.body.commentContent;
@@ -11,6 +12,7 @@ router.post('/', auth.isAuth, async (req, res) => {
     const userNickname = req.user.userNickname;
     const newDate = new Date();
     const commentTime = newDate.toFormat('YYYY-MM-DD HH24:MI:SS');
+
     const params = [commentTime, commentContent, userNickname, postId];
     const query =
       'INSERT INTO comment(commentTime, commentContent, userNickname, postId) VALUES(?,?,?,?)';
@@ -62,7 +64,7 @@ router.patch('/:commentId', auth.isAuth, async (req, res) => {
 router.delete('/:commentId', auth.isAuth, async (req, res) => {
   const { commentId } = req.params;
   const userNickname = req.user.userNickname;
-  const query = `DELETE from comment where commentId = '${commentId}'  and userNickname = "${userNickname}"`;
+  const query = `DELETE from comment where commentId = '${commentId}'  and userNickname = '${userNickname}'`;
   try {
     await db.query(query, (error, rows, fields) => {
       if (error) {

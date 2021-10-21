@@ -50,7 +50,6 @@ router.post('/signup', async (req, res) => {
           success: false,
         });
       }
-
       const userId = rows.insertId;
       const profileParams = [userId];
       const profileQuery = 'INSERT INTO profile(userId) VALUES(?)';
@@ -120,6 +119,7 @@ function checkUserNicknameValidation(userNickname) {
     });
   });
 }
+
 // 비밀번호 일치 여부 알려주는 함수
 function checkMatchingPassword(userPw, userPwCheck) {
   if (userPw === userPwCheck) {
@@ -183,7 +183,7 @@ function createJwtToken(userNickname, userEmail) {
 const isMatchEmailToPwd = (userEmail, userPw) => {
   return new Promise((resolve, reject) => {
     const params = [userEmail];
-    const query = 'select * from user where userEmail= ?'; // user_email를 통해서 해당 유저 데이터를 가져온다.
+    const query = 'select * from user where userEmail= ?'; // userEmail를 통해서 해당 유저 데이터를 가져온다.
 
     db.query(query, params, (error, rows, fields) => {
       if (error) {
@@ -201,5 +201,24 @@ const isMatchEmailToPwd = (userEmail, userPw) => {
     });
   });
 };
+
+// 유저페이지 불러오기 수정해야함!!!!!!!!!!!!!!!!!!!!!!!!!!!
+router.get('/:userNickname', async (req, res) => {
+  try {
+    let { userNickname } = req.params;
+    userNickname = userNickname.split('@')[1];
+    const query = `select post.*, user.userId from post inner join user On post.postId =  where userNickname = ${userNickname}`;
+    await db.query(query, (error, rows) => {
+      res.status(200).json({
+        success: true,
+        posts: rows,
+      });
+    });
+  } catch (err) {
+    res.status(400).json({
+      success: false,
+    });
+  }
+});
 
 module.exports = router;
