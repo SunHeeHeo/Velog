@@ -1,9 +1,10 @@
 const express = require('express');
 const router = express.Router({ mergeParams: true });
 const auth = require('../middlewares/auth');
-const db = require('../example');
+const mysql = require('mysql');
+const { db } = require('../example');
 
-//comments creating
+//댓글 작성
 router.post('/', auth.isAuth, async (req, res) => {
   try {
     const commentContent = req.body.commentContent;
@@ -16,7 +17,7 @@ router.post('/', auth.isAuth, async (req, res) => {
       'INSERT INTO comment(commentTime, commentContent, userNickname, postId) VALUES(?,?,?,?)';
     await db.query(query, params, (error, rows, fields) => {
       if (error) {
-        console.log(`Msg: raise Error in createPost => ${error}`);
+        console.log(`Msg: raise Error in createComment => ${ error }`);
         return res.status(400).json({
           success: false,
         });
@@ -27,7 +28,7 @@ router.post('/', auth.isAuth, async (req, res) => {
       });
     });
   } catch (err) {
-    console.log('게시글 작성 중 발생한 에러: ', err);
+    console.log('댓글 작성 중 발생한 에러: ', err);
     return res.status(500).json({
       success: false,
     });
@@ -50,9 +51,13 @@ router.patch('/:commentId', auth.isAuth, async (req, res) => {
         error,
       });
       return false;
+    } else if (rows.affectedRows === 0) {
+      res.status(401).json({
+        success: false,
+      });
     } else {
       res.status(200).json({
-        success: true,
+        success: true
       });
     }
   });
@@ -62,7 +67,7 @@ router.patch('/:commentId', auth.isAuth, async (req, res) => {
 router.delete('/:commentId', auth.isAuth, async (req, res) => {
   const { commentId } = req.params;
   const userNickname = req.user.userNickname;
-  const query = `DELETE from comment where commentId = '${commentId}'  and userNickname = "${userNickname}"`;
+  const query = `DELETE from comment where commentId = '${commentId}'  and userNickname = '${userNickname}'`;
   try {
     await db.query(query, (error, rows, fields) => {
       if (error) {
@@ -70,10 +75,15 @@ router.delete('/:commentId', auth.isAuth, async (req, res) => {
         return res.status(400).json({
           success: false,
         });
+      } else if (rows.affectedRows === 0) {
+        res.status(401).json({
+          success: false
+        })
+      } else {
+        res.status(200).json({
+          success: true,
+        })
       }
-      res.status(200).json({
-        success: true,
-      });
     });
   } catch (err) {
     res.status(500).json({ err: err });
