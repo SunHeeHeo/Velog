@@ -130,7 +130,7 @@ async function deleteComment(req, res) {
 // 상세페이지 댓글 내용 가져오기
 function getDetailCommentsData(rows) {
   let comments = [];
-  for (let i = 1; i < rows.length; i++) {
+  for (let i = 0; i < rows.length; i++) {
     let tmp = {
       commentId: rows[i].commentId,
       userNickname: rows[i].userNickname,
