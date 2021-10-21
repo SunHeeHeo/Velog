@@ -14,11 +14,11 @@ router.post('/signup', async (req, res) => {
     let { userEmail, userNickname, userPw, userPwCheck } = req.body;
 
     // 이메일 형식이 아닌 경우
-    if(!emailFormCheckCheck(userEmail)) {
+    if (!emailFormCheckCheck(userEmail)) {
       return res.status(400).json({
         success: false,
-        errMessage: "올바른 이메일형식을 입력해주세요."
-      })
+        errMessage: '올바른 이메일형식을 입력해주세요.',
+      });
     }
     if (!checkMatchingPassword(userPw, userPwCheck)) {
       // 잘못된 요청인 경우
@@ -31,7 +31,7 @@ router.post('/signup', async (req, res) => {
       console.log('email이 중복 되어 있습니다.');
       return res.status(400).json({
         success: false,
-        errMessage: "이메일이 중복되었습니다."
+        errMessage: '이메일이 중복되었습니다.',
       });
     }
     // userNickname 중복 여부
@@ -39,7 +39,7 @@ router.post('/signup', async (req, res) => {
       console.log('닉네임이 중복 되어 있습니다.');
       return res.status(400).json({
         success: false,
-        errMessage: "닉네임이 중복되었습니다."
+        errMessage: '닉네임이 중복되었습니다.',
       });
     }
 
@@ -54,7 +54,7 @@ router.post('/signup', async (req, res) => {
     // user 생성
     await db.query(userQuery, userParams, async (error, rows, fields) => {
       if (error) {
-        console.log(`Msg: raise Error in createUser => ${ error }`);
+        console.log(`Msg: raise Error in createUser => ${error}`);
         return res.status(400).json({
           success: false,
         });
@@ -74,7 +74,7 @@ router.post('/signup', async (req, res) => {
         }
       });
 
-      console.log(`${ userEmail }로 회원 등록이 완료되었습니다.`);
+      console.log(`${userEmail}로 회원 등록이 완료되었습니다.`);
 
       return res.status(201).json({
         success: true,
@@ -92,10 +92,10 @@ router.post('/signup', async (req, res) => {
 function checkUserEmailValidation(userEmail) {
   return new Promise((resolve, reject) => {
     const query = 'select * from user where userEmail = ?';
-    const params = [ userEmail ];
+    const params = [userEmail];
     db.query(query, params, (error, rows, fields) => {
       if (error) {
-        console.log(`Msg: raise Error in checkValidationEmail => ${ error }`);
+        console.log(`Msg: raise Error in checkValidationEmail => ${error}`);
         return resolve(true);
       }
 
@@ -112,7 +112,8 @@ function checkUserEmailValidation(userEmail) {
 
 // 이메일 정규식 체크
 function emailFormCheckCheck(userEmail) {
-  const reg_name = /^[0-9a-zA-Z]([-_.]?[0-9a-zA-Z])*@[0-9a-zA-Z]([-_.]?[0-9a-zA-Z])*.[a-zA-Z]{2,3}$/i;  // 이메일 정규식표현
+  const reg_name =
+    /^[0-9a-zA-Z]([-_.]?[0-9a-zA-Z])*@[0-9a-zA-Z]([-_.]?[0-9a-zA-Z])*.[a-zA-Z]{2,3}$/i; // 이메일 정규식표현
   if (reg_name.test(userEmail)) {
     return true;
   }
@@ -123,10 +124,10 @@ function emailFormCheckCheck(userEmail) {
 function checkUserNicknameValidation(userNickname) {
   return new Promise((resolve, reject) => {
     const query = 'select * from user where userNickname = ?';
-    const params = [ userNickname ];
+    const params = [userNickname];
     db.query(query, params, (error, rows, fields) => {
       if (error) {
-        console.log(`Msg: raise Error in checkValidationNickname => ${ error }`);
+        console.log(`Msg: raise Error in checkValidationNickname => ${error}`);
         return resolve(true);
       }
 
@@ -202,12 +203,12 @@ function createJwtToken(userNickname, userEmail) {
 
 const isMatchEmailToPwd = (userEmail, userPw) => {
   return new Promise((resolve, reject) => {
-    const params = [ userEmail ];
+    const params = [userEmail];
     const query = 'select * from user where userEmail= ?'; // userEmail를 통해서 해당 유저 데이터를 가져온다.
 
     db.query(query, params, (error, rows, fields) => {
       if (error) {
-        console.error(`Msg: raise Error in isMatchEmailToPwd => ${ error }`);
+        console.error(`Msg: raise Error in isMatchEmailToPwd => ${error}`);
         return resolve({ success: false });
       }
       // query문의 결과가 1개 이상이면서 비밀번호가 일치할 때,
@@ -226,12 +227,12 @@ const isMatchEmailToPwd = (userEmail, userPw) => {
 router.get('/:userNickname', async (req, res) => {
   try {
     let { userNickname } = req.params;
-    userNickname = userNickname.split('@')[1]
+    userNickname = userNickname.split('@')[1];
     const query = `select post.*, user.userId from post inner join user On post.postId =  where userNickname = ${userNickname}`;
     await db.query(query, (error, rows) => {
       res.status(200).json({
         success: true,
-        posts: rows
+        posts: rows,
       });
     });
   } catch (err) {
