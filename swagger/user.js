@@ -63,4 +63,25 @@
  *         description: 아이디 또는 패스워드 불일치
  *       '500':
  *         description: 로그인 기능 중, 서버 측에서 예상치 못한 에러 발생
+ * /users/@{userNickname}:
+ *   get:
+ *     tags:
+ *      - User
+ *     summary: 유저 페이지
+ *     parameters:
+ *       - name: userNickname
+ *         in: path
+ *         required: true
+ *         default: jongwan1
+ *         schema:
+ *           type: string
+ *           properties:
+ *            userNickname:
+ *              type: string
+ *              description: 유저 닉네임
+ *     responses:
+ *       '200':
+ *         description: 성공!
+ *       '400':
+ *         description: DB 관련 에러
  */
