@@ -208,19 +208,26 @@ router.get('/:userNickname', async (req, res) => {
     let userNickname = req.params.userNickname;
     userNickname = userNickname.split('@')[1];
     const postQuery = `select postTitle, postIntro, postTime from post where userNickname='${userNickname}'`;
-    await db.query(postQuery, async (error, rows) => {
+    await db.query(postQuery, async (error, posts) => {
       if (error) {
         console.log(' 유저 페이지 postQuery문 실행 중 발생한 에러: ', error);
         return res.status(400).json({
           success: false,
         });
       }
-
-      return res.status(200).json({
-        success: true,
-        posts,
-        user,
-      });
+      try {
+        await db.query(userQuery);
+        return res.status(200).json({
+          success: true,
+          posts,
+          user,
+        });
+      } catch (err) {
+        console.log('유저 페이지 userQuery문 실행 중 발생한 에러:', err);
+        return res.status(400).json({
+          success: false,
+        });
+      }
     });
   } catch (err) {
     res.status(400).json({
