@@ -11,8 +11,14 @@ const { db } = require('../example');
 // 회원가입
 router.post('/signup', async (req, res) => {
   try {
-    const { userEmail, userNickname, userPw, userPwCheck } = req.body;
+    let { userEmail, userNickname, userPw, userPwCheck } = req.body;
 
+    // 이메일 형식이 아닌 경우
+    if(!emailFormCheckCheck(userEmail)) {
+      return res.status(400).json({
+        success: false,
+      })
+    }
     if (!checkMatchingPassword(userPw, userPwCheck)) {
       // 잘못된 요청인 경우
       return res.status(400).json({
@@ -99,6 +105,15 @@ function checkUserEmailValidation(userEmail) {
       resolve(true);
     });
   });
+}
+
+// 이메일 정규식 체크
+function emailFormCheckCheck(userEmail) {
+  const reg_name = /^[0-9a-zA-Z]([-_.]?[0-9a-zA-Z])*@[0-9a-zA-Z]([-_.]?[0-9a-zA-Z])*.[a-zA-Z]{2,3}$/i;  // 이메일 정규식표현
+  if (reg_name.test(userEmail)) {
+    return true;
+  }
+  return false;
 }
 
 // 닉네임 중복 여부
