@@ -3,7 +3,8 @@
   "version": "0.0.0",
   "private": true,
   "scripts": {
-    "start": "nodemon ./bin/www"
+    "start": "nodemon ./bin/www",
+    "test": "jest"
   },
   "dependencies": {
     "bcrypt": "^5.0.1",
@@ -21,5 +22,8 @@
     "mysql": "^2.18.1",
     "swagger-jsdoc": "^6.1.0",
     "swagger-ui-express": "^4.1.6"
+  },
+  "devDependencies": {
+    "jest": "^27.3.1"
   }
 }
