@@ -77,6 +77,7 @@ router.get('/:postId', async (req, res) => {
 
   try {
     await db.query(query, (error, rows) => {
+      console.log("로우스야!", rows);
       if (error) {
         return false;
       } else {
@@ -194,7 +195,7 @@ function getDetailPostData(rows) {
 // 상세페이지 댓글 내용 가져오기
 function getDetailCommentsData(rows) {
   let comments = [];
-  for (let i = 1; i < rows.length; i++) {
+  for (let i = 0; i < rows.length; i++) {
     let tmp = {
       commentId: rows[i].commentId,
       userNickname: rows[i].commentUserNickname,
