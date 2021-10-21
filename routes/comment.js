@@ -12,7 +12,7 @@ router.post('/', auth.isAuth, async (req, res) => {
     const userNickname = req.user.userNickname;
     const newDate = new Date();
     const commentTime = newDate.toFormat('YYYY-MM-DD HH24:MI:SS');
-    const params = [commentTime, commentContent, userNickname, postId];
+    const params = [commentTime, commentContent, userNickname, Number(postId)];
     const query =
       'INSERT INTO comment(commentTime, commentContent, userNickname, postId) VALUES(?,?,?,?)';
     await db.query(query, params, (error, rows, fields) => {
