@@ -187,7 +187,7 @@ function getDetailPostData(rows) {
     postTitle: rows[0].postTitle,
     postContent: rows[0].postContent,
     postTime: rows[0].postTime,
-    postUserNickname: rows[0].postUserNickname
+    postUserNickname: rows[0].postUserNickname,
   };
 }
 
@@ -196,6 +196,7 @@ function getDetailCommentsData(rows) {
   let comments = [];
   for (let i = 1; i < rows.length; i++) {
     let tmp = {
+      commentId: rows[i].commentId,
       userNickname: rows[i].commentUserNickname,
       commentContent: rows[i].commentContent,
       commentDate: rows[i].commentTime,
@@ -206,4 +207,3 @@ function getDetailCommentsData(rows) {
 }
 
 module.exports = router;
-
