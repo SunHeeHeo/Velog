@@ -187,6 +187,7 @@ function getDetailPostData(rows) {
     postTitle: rows[0].postTitle,
     postContent: rows[0].postContent,
     postTime: rows[0].postTime,
+    postUserNickname: rows[0].postUserNickname
   };
 }
 
