@@ -1,25 +1,14 @@
 const express = require('express');
-const router = express.Router({mergeParams: true});
+const router = express.Router({ mergeParams: true });
 const auth = require('../middlewares/auth');
 const mysql = require('mysql');
-const db = mysql.createConnection({
-  host: process.env.DB_HOST,
-  user: process.env.DB_USER,
-  password: process.env.DB_PASSWORD,
-  database: process.env.DB_DATABASE,
-});
+const { db } = require('../example');
 
-
-/* GET users listing. */
-router.get('/', function (req, res, next) {
-  res.send('respond with a resource');
-});
-
-//comments creating
+//댓글 작성
 router.post('/', auth.isAuth, async (req, res) => {
   try {
     const commentContent = req.body.commentContent;
-    const {postId} = req.params
+    const { postId } = req.params;
     const userNickname = req.user.userNickname;
     const newDate = new Date();
     const commentTime = newDate.toFormat('YYYY-MM-DD HH24:MI:SS');
@@ -28,12 +17,12 @@ router.post('/', auth.isAuth, async (req, res) => {
       commentContent,
       userNickname,
       postId
-    ]; 
+    ];
     const query =
       'INSERT INTO comment(commentTime,commentContent,userNickname,postId) VALUES(?,?,?,?)';
     await db.query(query, params, (error, rows, fields) => {
       if (error) {
-        console.log(`Msg: raise Error in createPost => ${error}`);
+        console.log(`Msg: raise Error in createPost => ${ error }`);
         return res.status(400).json({
           success: false,
         });
@@ -53,7 +42,7 @@ router.post('/', auth.isAuth, async (req, res) => {
 
 //댓글 수정
 router.patch('/:commentId', auth.isAuth, async (req, res) => {
-  const {commentId} = req.params;
+  const { commentId } = req.params;
   const { commentContent } = req.body;
   const userNickname = req.user.userNickname;
   const escapeQuery = {
@@ -79,7 +68,7 @@ router.patch('/:commentId', auth.isAuth, async (req, res) => {
 router.delete('/:commentId', auth.isAuth, async (req, res) => {
   const { commentId } = req.params;
   const userNickname = req.user.userNickname;
-  const query = `DELETE from comment where commentId = '${commentId}'  and userNickname = "${userNickname}"`;
+  const query = `DELETE from comment where commentId = '${commentId}'  and userNickname = '${userNickname}'`;
   try {
     await db.query(query, (error, rows, fields) => {
       if (error) {
