@@ -1,15 +1,5 @@
 /**
  * @swagger
- * /posts/4:
- *   get:
- *     tags:
- *      - Post
- *     summary: 댓글 전체 조회
- *     responses:
- *       '200':
- *         description: 포스트 가져오기 성공.
- *       '500':
- *         description: 예상하지 못한 에러 발생
  * /posts/4/comments:
  *   post:
  *     security:

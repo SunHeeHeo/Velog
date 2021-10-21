@@ -1,10 +1,11 @@
 const express = require('express');
 const router = express.Router({ mergeParams: true });
 const auth = require('../middlewares/auth');
-const db = require('../example');
+const { db } = require('../example');
 
 //댓글 작성
 router.post('/', auth.isAuth, async (req, res) => {
+  console.log(db)
   try {
     const commentContent = req.body.commentContent;
     const { postId } = req.params;
@@ -15,6 +16,7 @@ router.post('/', auth.isAuth, async (req, res) => {
     const query =
       'INSERT INTO comment(commentTime, commentContent, userNickname, postId) VALUES(?,?,?,?)';
     await db.query(query, params, (error, rows, fields) => {
+      console.log("쿼리는",query)
       if (error) {
         console.log(`Msg: raise Error in createPost => ${error}`);
         return res.status(400).json({
@@ -27,7 +29,7 @@ router.post('/', auth.isAuth, async (req, res) => {
       });
     });
   } catch (err) {
-    console.log('게시글 작성 중 발생한 에러: ', err);
+    console.log('댓글 작성 중 발생한 에러: ', err);
     return res.status(500).json({
       success: false,
     });
@@ -63,6 +65,7 @@ router.delete('/:commentId', auth.isAuth, async (req, res) => {
   const { commentId } = req.params;
   const userNickname = req.user.userNickname;
   const query = `DELETE from comment where commentId = '${commentId}'  and userNickname = "${userNickname}"`;
+
   try {
     await db.query(query, (error, rows, fields) => {
       if (error) {

@@ -1,16 +1,10 @@
 const express = require('express');
 const router = express.Router({ mergeParams: true });
-const mysql = require('mysql');
 const auth = require('../middlewares/auth');
 require('date-utils'); //*
 const comment = require('./comment');
 router.use('/:postId/comments', comment);
-const db = mysql.createConnection({
-  host: process.env.DB_HOST,
-  user: process.env.DB_USER,
-  password: process.env.DB_PASSWORD,
-  database: process.env.DB_DATABASE,
-});
+const { db } = require('../example');
 
 //게시글 작성하기
 router.post('/', auth.isAuth, async (req, res) => {
