@@ -224,13 +224,11 @@ const isMatchEmailToPwd = (userEmail, userPw) => {
 };
 
 // 유저페이지 불러오기
-
 router.get('/:userNickname', async (req, res) => {
   try {
     let userNickname = req.params.userNickname;
     userNickname = userNickname.split('@')[1];
-    // 추가해줘야할 부분: commentCnt 필요
-    const postQuery = `select postTitle, postIntro, postTime, (select count(*) from comment where postId=post.postId) as commentCnt from post where userNickname="${userNickname}";`;
+    const postQuery = `select postId, postImage, postTitle, postIntro, postTime, (select count(*) from comment where postId=post.postId) as commentCnt from post where userNickname="${userNickname}";`;
     await db.query(postQuery, async (err, posts) => {
       if (err) {
         console.log(' 유저 페이지 postQuery문 실행 중 발생한 에러: ', err);
