@@ -202,16 +202,24 @@ const isMatchEmailToPwd = (userEmail, userPw) => {
   });
 };
 
-// 유저페이지 불러오기 수정해야함!!!!!!!!!!!!!!!!!!!!!!!!!!!
+// 유저페이지 불러오기
 router.get('/:userNickname', async (req, res) => {
   try {
-    let { userNickname } = req.params;
+    let userNickname = req.params.userNickname;
     userNickname = userNickname.split('@')[1];
-    const query = `select post.*, user.userId from post inner join user On post.postId =  where userNickname = ${userNickname}`;
-    await db.query(query, (error, rows) => {
-      res.status(200).json({
+    const postQuery = `select postTitle, postIntro, postTime from post where userNickname='${userNickname}'`;
+    await db.query(postQuery, async (error, rows) => {
+      if (error) {
+        console.log(' 유저 페이지 postQuery문 실행 중 발생한 에러: ', error);
+        return res.status(400).json({
+          success: false,
+        });
+      }
+
+      return res.status(200).json({
         success: true,
-        posts: rows,
+        posts,
+        user,
       });
     });
   } catch (err) {
