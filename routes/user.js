@@ -197,7 +197,7 @@ router.post('/auth', async (req, res) => {
 //JWT 토큰 생성
 function createJwtToken(userNickname, userEmail) {
   return jwt.sign({ userNickname, userEmail }, process.env.SECRET_KEY, {
-    expiresIn: '1h',
+    expiresIn: '24h',
   });
 }
 
