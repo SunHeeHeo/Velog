@@ -17,6 +17,7 @@ router.post('/signup', async (req, res) => {
     if(!emailFormCheckCheck(userEmail)) {
       return res.status(400).json({
         success: false,
+        errMessage: "올바른 이메일형식을 입력해주세요."
       })
     }
     if (!checkMatchingPassword(userPw, userPwCheck)) {
@@ -30,6 +31,7 @@ router.post('/signup', async (req, res) => {
       console.log('email이 중복 되어 있습니다.');
       return res.status(400).json({
         success: false,
+        errMessage: "이메일이 중복되었습니다."
       });
     }
     // userNickname 중복 여부
@@ -37,6 +39,7 @@ router.post('/signup', async (req, res) => {
       console.log('닉네임이 중복 되어 있습니다.');
       return res.status(400).json({
         success: false,
+        errMessage: "닉네임이 중복되었습니다."
       });
     }
 
