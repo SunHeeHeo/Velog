@@ -1,71 +1,49 @@
 /**
  * @swagger
- * /posts:
+ * /posts/{postId}/comments:
  *   post:
  *     security:
  *      - bearerAuth: []
  *     tags:
- *      - Post
- *     name: 게시글 작성
- *     summary: 게시글 작성(사용 가능)
+ *      - Comment
+ *     name: 댓글 작성
+ *     summary: 댓글 작성
  *     parameters:
- *       - name: body
- *         in: body
+ *       - name: postId
+ *         in: path
  *         required: true
  *         default: 4
  *         schema:
  *           type: object
  *           properties:
- *             postTitle:
+ *             commentContent:
  *               type: string
- *               description: 게시글 제목
- *             postIntro:
+ *               description: 댓글 내용
+ *       - name: body
+ *         in: body
+ *         schema:
+ *           type: object
+ *           properties:
+ *             commentContent:
  *               type: String
- *               description: 게시글 간단 설명
- *             postContent:
- *               type: String
- *               description: 게시글 내용
- *             postImage:
- *               type: String
- *               description: 사진 URL
+ *               description: 댓글 내용
  *           example:
- *             postTitle: "안녕하세요"
- *             postIntro: "자기소개"
- *             postContent: "반갑습니다!! ㅎㅎ"
- *             postImage: "https://www.sg=AI4_-kSVKKmmP1sS5Y5cOtg&sa=X&ved=Vi-CBaYM"
+ *             commentContent: "댓글 작성 테스트입니다."
  *     responses:
  *       '201':
- *         description: 게시글 등록 완료.
+ *         description: 댓글 등록 완료.
  *       '400':
  *         description: DB관련 에러
  *       '500':
  *         description: 예상하지 못한 에러
- * /posts/{postId}:
- *   get:
- *     tags:
- *      - Post
- *     name: 게시글 상세 페이지 조회
- *     summary: 게시글 상세 페이지 조회(댓글 기능 아직 구현 못했어요!)
- *     parameters:
- *       - name: postId
- *         in: path
- *         required: true
- *         default: 4
- *         schema:
- *           type: Number
- *           description: 해당 게시글 고유 아이디
- *     responses:
- *       '200':
- *         description: 게시글 상세 페이지 조회
- *       '500':
- *         description: 예상하지 못한 에러
+ * /posts/{postId}/comments/{commentId}:
  *   patch:
  *     security:
- *      - bearerAuth: []
+ *       - bearerAuth: []
  *     tags:
- *      - Post
- *     name: 게시글 수정
- *     summary: 게시글 수정(사용 가능)
+ *       - Comment
+ *     name: 댓글 수정
+ *     summary: 댓글 수정
  *     parameters:
  *       - name: postId
  *         in: path
@@ -74,52 +52,58 @@
  *         schema:
  *           type: Number
  *           description: 해당 게시글 고유 아이디
+ *       - name: commentId
+ *         in: path
+ *         required: true
+ *         default: 1399
+ *         schema:
+ *           type: Number
+ *           description: 게시글의 해당 댓글 고유 아이디
  *       - name: body
  *         in: body
  *         schema:
  *           type: object
  *           properties:
- *             postTitle:
- *               type: string
- *               description: 게시글 제목
- *             postIntro:
+ *             commentContent:
  *               type: String
- *               description: 게시글 간단 설명
- *             postContent:
- *               type: String
- *               description: 게시글 내용
- *             postImage:
- *               type: String
- *               description: 게시글 이미지 URL
+ *               description: 해당 댓글 수정 내용
  *           example:
- *             postTitle: "안녕하세요"
- *             postIntro: "자기소개"
- *             postContent: "반갑습니다!! ㅎㅎ"
- *             postImage: "https://www.sg=AI4_-kSVKKmmP1sS5Y5cOtg&sa=X&ved=Vi-CBaYM"
+ *             commentContent: "댓글수정 테스트입니다."
  *     responses:
  *       '200':
- *         description: 게시글 수정 완료.
+ *         description: 댓글 수정 완료.
+ *       '401':
+ *         description: 권한이 없을 때(잘못된 접근이거나, 본인의 글이 아닐 때)
  *       '500':
- *         description: 예상하지 못한 에러 발생
+ *         description: 예상하지 못한 에러
  *   delete:
  *     security:
  *      - bearerAuth: []
  *     tags:
- *      - Post
- *     summary: 게시글 삭제(사용 가능)
+ *      - Comment
+ *     summary: 댓글
  *     parameters:
  *       - name: postId
  *         in: path
- *         default: 4
  *         required: true
+ *         default: 4
  *         schema:
  *           type: Number
  *           description: 해당 게시글 고유 아이디
+ *       - name: commentId
+ *         in: path
+ *         required: true
+ *         default: 1399
+ *         schema:
+ *           type: Number
+ *           description: 게시글의 해당 댓글 고유 아이디
  *     responses:
  *       '200':
- *         description: 해당 포스트 삭제 완료
+ *         description: 해당 댓글 삭제 완료
  *       '400':
  *         description: DB 관련 에러 발생
+ *       '401':
+ *         description: 권한이 없을 때(잘못된 접근이거나, 본인의 글이 아닐 때)
  *       '500':
  *         description: 예상하지 못한 에러 발생
  */
