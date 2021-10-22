@@ -1,13 +1,13 @@
-const createError = require('http-errors'); //에러 핸들러*
-const express = require('express'); //express 모듈을 받아 오겠다
-const compression = require('compression'); //페이지를 압축하기 위한 미들웨어 compression 모듈 설치
-const path = require('path'); //path 모듈은 파일과 Directory 경로 작업을 위한 utility 제공한다
-const cookieParser = require('cookie-parser'); // 로그인 인증을 위해 쿠키파서라는 모듈을 require 함수를 통해 불러옴
-const logger = require('morgan'); //모간 모듈을 require 함수를 통해 불러옴
+const createError = require('http-errors');
+const express = require('express');
+const compression = require('compression');
+const path = require('path');
+const cookieParser = require('cookie-parser');
+const logger = require('morgan');
 const indexRouter = require('./routes/index'); 
-const app = express(); //express 인스턴스를 생성
-require('dotenv').config(); //dotenv 라이브러리를 임포트 한후, config함수를 호출*
-app.use(compression()); // 요청받은 내용들 압축
+const app = express();
+require('dotenv').config();
+app.use(compression());
 
 //CORS
 const cors = require('cors');
