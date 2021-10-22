@@ -6,7 +6,7 @@ const bcrypt = require('bcrypt');
 const setRounds = 10;
 const jwt = require('jsonwebtoken');
 require('dotenv').config();
-const { db } = require('../example');
+const { db } = require('../models');
 
 // 회원가입
 router.post('/signup', async (req, res) => {

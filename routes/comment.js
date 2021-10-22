@@ -3,7 +3,7 @@
 const express = require('express');
 const router = express.Router({ mergeParams: true });
 const auth = require('../middlewares/auth');
-const { db } = require('../example');
+const { db } = require('../models/index');
 
 //댓글 작성
 router.post('/', auth.isAuth, addComment);
