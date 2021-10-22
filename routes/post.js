@@ -48,7 +48,7 @@ router.post('/', auth.isAuth, async (req, res) => {
 //게시글 조회하기
 router.get('/', function (req, res, next) {
   try {
-    const query = 'select * from post ORDER BY postId DESC;'; //db에서 모든 포스트를 다 가지고 오겠다!
+    const query = 'select *, (select count(*) from comment where postId = post.postId) as commentCnt from post ORDER BY postId DESC;'; //db에서 모든 포스트를 다 가지고 오겠다!
     db.query(query, (error, rows) => {
       if (error) {
         logger.error('게시글 조회 중 발생한 DB관련 에러', error);
