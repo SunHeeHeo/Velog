@@ -4,7 +4,6 @@ const compression = require('compression');
 const path = require('path');
 const indexRouter = require('./routes/index');
 const app = express();
-// const logger = require('./config/logger');w
 require('dotenv').config();
 app.use(compression());
 
