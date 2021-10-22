@@ -138,6 +138,8 @@ async function deleteComment(req, res) {
 // 상세페이지 댓글 내용 가져오는 함수
 function getDetailCommentsData(rows) {
   let comments = [];
+  logger.info('한번 보자', rows);
+
   for (let i = 0; i < rows.length; i++) {
     let tmp = {
       commentId: rows[i].commentId,

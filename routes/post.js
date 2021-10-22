@@ -192,14 +192,17 @@ function getDetailPostData(rows) {
     postContent: rows[0].postContent,
     postTime: rows[0].postTime,
     postUserNickname: rows[0].postUserNickname,
-    postImage: rows[0].postImage
-
+    postImage: rows[0].postImage,
   };
 }
 
 // 상세페이지 댓글 내용 가져오기
 function getDetailCommentsData(rows) {
   let comments = [];
+  if (rows[0].commentId === null) {
+    return comments;
+  }
+
   for (let i = 0; i < rows.length; i++) {
     let tmp = {
       commentId: rows[i].commentId,
