@@ -3,20 +3,24 @@ const router = express.Router();
 const user = require('./user');
 const post = require('./post');
 const comment = require('./comment');
-const auth = require('../middlewares/auth');
 require('dotenv').config();
 
 //swagger
 const swaggerUi = require('swagger-ui-express');
 const swaggerJSDoc = require('swagger-jsdoc');
 
+// 배포용 및 로컬용 host 나누기
+let host = `localhost:${process.env.PORT}`;
+if (process.env.NODE_ENV === 'production') {
+  host = '15.164.224.83';
+}
 const swaggerDefinition = {
   info: {
-    title: '',
+    title: 'VELOG API',
     version: '1.0.0',
-    description: '',
+    description: 'VELOG API 명세서',
   },
-  host: `localhost:${process.env.PORT}`,
+  host: host,
   basePath: '/',
   securityDefinitions: {
     bearerAuth: {

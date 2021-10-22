@@ -1,12 +1,11 @@
 const express = require('express');
 const router = express.Router();
-const mysql = require('mysql');
-const auth = require('../middlewares/auth');
 const bcrypt = require('bcrypt');
 const setRounds = 10;
 const jwt = require('jsonwebtoken');
 require('dotenv').config();
-const { db } = require('../models');
+const { db } = require('../models/index');
+const logger = require('../config/logger');
 
 // 회원가입
 router.post('/signup', async (req, res) => {
@@ -28,7 +27,7 @@ router.post('/signup', async (req, res) => {
     }
     // userEmail 중복 여부
     if (await checkUserEmailValidation(userEmail)) {
-      console.log('email이 중복 되어 있습니다.');
+      logger.error('email이 중복 되어 있습니다.');
       return res.status(400).json({
         success: false,
         errMessage: '이미 존재하는 이메일입니다.',
@@ -36,7 +35,7 @@ router.post('/signup', async (req, res) => {
     }
     // userNickname 중복 여부
     if (await checkUserNicknameValidation(userNickname)) {
-      console.log('닉네임이 중복 되어 있습니다.');
+      logger.error('닉네임이 중복 되어 있습니다.');
       return res.status(400).json({
         success: false,
         errMessage: '이미 존재하는 닉네임입니다.',
@@ -54,7 +53,7 @@ router.post('/signup', async (req, res) => {
     // user 생성
     await db.query(userQuery, userParams, async (error, rows, fields) => {
       if (error) {
-        console.log(`Msg: raise Error in createUser => ${error}`);
+        logger.error(`Msg: raise Error in createUser => ${error}`);
         return res.status(400).json({
           success: false,
         });
@@ -67,21 +66,20 @@ router.post('/signup', async (req, res) => {
       // profile 생성
       await db.query(profileQuery, profileParams, (error, rows, fields) => {
         if (error) {
-          console.log(`Msg: raise Error in createProfile => ${error}`);
+          logger.error(`Msg: raise Error in createProfile => ${error}`);
           return res.status(400).json({
             success: false,
           });
         }
       });
 
-      console.log(`${userEmail}로 회원 등록이 완료되었습니다.`);
-
+      logger.info(`${userEmail}로 회원 등록이 완료되었습니다.`);
       return res.status(201).json({
         success: true,
       });
     });
   } catch (err) {
-    console.log('회원가입 기능 중 발생한 에러: ', err);
+    logger.error('회원가입 기능 중 발생한 에러: ', err);
     return res.status(500).json({
       success: false,
     });
@@ -95,7 +93,7 @@ function checkUserEmailValidation(userEmail) {
     const params = [userEmail];
     db.query(query, params, (error, rows, fields) => {
       if (error) {
-        console.log(`Msg: raise Error in checkValidationEmail => ${error}`);
+        logger.error(`Msg: raise Error in checkValidationEmail => ${error}`);
         return resolve(true);
       }
 
@@ -127,7 +125,7 @@ function checkUserNicknameValidation(userNickname) {
     const params = [userNickname];
     db.query(query, params, (error, rows, fields) => {
       if (error) {
-        console.log(`Msg: raise Error in checkValidationNickname => ${error}`);
+        logger.error(`Msg: raise Error in checkValidationNickname => ${error}`);
         return resolve(true);
       }
 
@@ -155,7 +153,6 @@ router.post('/auth', async (req, res) => {
     const { userEmail, userPw } = req.body;
 
     const data = await isMatchEmailToPwd(userEmail, userPw);
-    console.log(data);
     // 로그인 정보가 일치하지 않을 경우
     if (!data.success) {
       return res.status(401).json({
@@ -171,7 +168,7 @@ router.post('/auth', async (req, res) => {
 
     // 비밀번호가 일치하지 않는 경우(Unauthorized)
     if (!bcrypt.compareSync(userPw, hashedPw)) {
-      console.log('비밀번호가 일치하지 않는 경우에 걸림');
+      logger.error('비밀번호가 일치하지 않습니다.');
       return res.status(401).json({
         success: false,
       });
@@ -179,6 +176,7 @@ router.post('/auth', async (req, res) => {
 
     // 토큰 생성
     const token = createJwtToken(nickname, email);
+    logger.info('로그인에 성공했습니다.');
     res.status(201).json({
       success: true,
       token,
@@ -187,7 +185,7 @@ router.post('/auth', async (req, res) => {
       userId: id,
     });
   } catch (err) {
-    console.log('로그인 기능 중 에러가 발생: ', err);
+    logger.error('로그인 기능 중 에러가 발생: ', err);
     res.status(500).json({
       success: false,
     });
@@ -208,7 +206,7 @@ const isMatchEmailToPwd = (userEmail, userPw) => {
 
     db.query(query, params, (error, rows, fields) => {
       if (error) {
-        console.error(`Msg: raise Error in isMatchEmailToPwd => ${error}`);
+        logger.error(`Msg: raise Error in isMatchEmailToPwd => ${error}`);
         return resolve({ success: false });
       }
       // query문의 결과가 1개 이상이면서 비밀번호가 일치할 때,
@@ -231,7 +229,7 @@ router.get('/:userNickname', async (req, res) => {
     const postQuery = `select postId, postImage, postTitle, postIntro, postTime, (select count(*) from comment where postId=post.postId) as commentCnt from post where userNickname="${userNickname}";`;
     await db.query(postQuery, async (err, posts) => {
       if (err) {
-        console.log(' 유저 페이지 postQuery문 실행 중 발생한 에러: ', err);
+        logger.error(' 유저 페이지 postQuery문 실행 중 발생한 에러: ', err);
         return res.status(400).json({
           success: false,
         });
@@ -240,12 +238,14 @@ router.get('/:userNickname', async (req, res) => {
         const userQuery = `select user.userId, user.userEmail, user.userNickname, profile.userImage, profile.userIntro from user inner join profile on user.userId = profile.userId where user.userNickname="${userNickname}";`;
         await db.query(userQuery, async (err, user) => {
           if (err) {
-            console.log('유저 페이지  userQuery문 실행 중 발생한 에러: ', err);
+            logger.error('유저 페이지  userQuery문 실행 중 발생한 에러: ', err);
             return res.status(400).json({
               success: false,
             });
           }
-
+          logger.info(
+            `${userNickname}님의 유저페이지를 불러오는데 성공했습니다.`
+          );
           return res.status(200).json({
             success: true,
             posts,
@@ -253,7 +253,7 @@ router.get('/:userNickname', async (req, res) => {
           });
         });
       } catch (err) {
-        console.log('유저 페이지 userQuery문 실행 중 발생한 에러:', err);
+        logger.error('유저 페이지 userQuery문 실행 중 발생한 에러:', err);
         return res.status(400).json({
           success: false,
         });

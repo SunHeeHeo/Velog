@@ -2,10 +2,9 @@ const createError = require('http-errors');
 const express = require('express');
 const compression = require('compression');
 const path = require('path');
-const cookieParser = require('cookie-parser');
 const indexRouter = require('./routes/index');
 const app = express();
-const logger = require('./config/logger');
+// const logger = require('./config/logger');w
 require('dotenv').config();
 app.use(compression()); // 요청받은 내용들 압축
 
@@ -14,7 +13,7 @@ const cors = require('cors');
 const corsOptions = {
   //cors 설정
   origin: '*', // 전체 허용
-  methods: 'GET, HEAD, PUT, PATCH, POST, DELETE', 
+  methods: 'GET, HEAD, PUT, PATCH, POST, DELETE',
   preflightContinue: false,
 
   credentials: true,
@@ -29,7 +28,6 @@ app.set('view engine', 'jade');
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
-app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
 app.use('/', indexRouter);
