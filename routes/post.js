@@ -71,7 +71,7 @@ router.get('/:postId', async (req, res) => {
 
   const query = `
   select 
-  post.postId, comment.commentId, postTitle, postContent, post.userNickname as postUserNickname, postTime, commentContent, 
+  post.postId, comment.commentId, postImage, postTitle, postContent, post.userNickname as postUserNickname, postTime, commentContent, 
   comment.userNickname as commentUserNickname, commentTime from post 
   left join comment on post.postId = comment.postId WHERE post.postId=${postId}`;
 
@@ -187,7 +187,8 @@ function getDetailPostData(rows) {
     postTitle: rows[0].postTitle,
     postContent: rows[0].postContent,
     postTime: rows[0].postTime,
-    postUserNickname: rows[0].postUserNickname
+    postUserNickname: rows[0].postUserNickname,
+    postImage: rows[0].postImage
   };
 }
 
