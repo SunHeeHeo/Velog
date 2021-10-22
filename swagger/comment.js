@@ -81,7 +81,7 @@
  *      - bearerAuth: []
  *     tags:
  *      - Comment
- *     summary: 댓글
+ *     summary: 댓글 삭제
  *     parameters:
  *       - name: postId
  *         in: path

@@ -7,6 +7,7 @@
 const app = require('../app');
 const debug = require('debug')('clone-coding:server');
 const http = require('http');
+const logger = require('../config/logger');
 require('dotenv').config();
 
 /**
@@ -81,6 +82,7 @@ function onError(error) {
  */
 
 function onListening() {
+  logger.info(`${port}번 포트에서 정상적으로 서버가 가동되었습니다.`);
   const addr = server.address();
   const bind = typeof addr === 'string' ? 'pipe ' + addr : 'port ' + addr.port;
   debug('Listening on ' + bind);
